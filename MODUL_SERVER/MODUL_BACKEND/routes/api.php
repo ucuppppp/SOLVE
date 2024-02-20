@@ -22,13 +22,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-Route::prefix('v1')->group(function () {
-
-    Route::post('/login', [AuthController::class, 'login']);
+Route::prefix('/v1')->group(function () {
+    // LOGIN
+    Route::post('/auth/login', [AuthController::class, 'login']);
 
     Route::middleware('auth:sanctum')->group(function () {
-
-        Route::post('/logout', [AuthController::class, 'logout']);
+        // LOGOUT
+        Route::post('/auth/logout', [AuthController::class, 'logout']);
 
         Route::prefix('forms')->group(function () {
             // FORMS
