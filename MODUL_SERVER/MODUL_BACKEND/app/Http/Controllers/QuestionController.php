@@ -33,21 +33,21 @@ class QuestionController extends Controller
         $user = auth()->user();
 
         $validator = Validator::make($request->all(), [
-            "name" => "required",
-            "choice_type" => "required|in:short answer,paragraph,date,multiple choice,dropdown,checkboxes",
-            "choices" => [
-                "required", function ($attribute, $value, $fail) {
-                        if (!is_array($value)) {
-                            $fail("The $attribute must be an array.");
-                            $fail("The $attribute must be a string.");
-                        }
-                        if (is_array($value) && array_filter($value, 'is_string') !== $value) {
-                            $fail("The $attribute must be a string.");
-                        }
-                    },
-                ],
+            'name' => 'required',
+            'choice_type' => 'required|in:short answer,paragraph,date,time,multiple choice,dropdown,checkboxes',
+            'choices' => ['required_if:choice_type,multiple choice,dropdown,checkboxes', function($att, $val, $fail){
+                if(!is_array($val) && !is_string($val)){
+                    $fail("The $att must be an array.");
+                    $fail("The $att must be a string.");
+                }
+                if(is_array($val) && in_array(false, array_map('is_string', $val))) {
+                    $fail("The $att must be a string.");
+                }
+            }
             ]
-        );
+        ]);
+
+        
 
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();
@@ -57,10 +57,31 @@ class QuestionController extends Controller
             ], 422);
         }
 
-        $form = Form::where('slug',$slug)->first();
+        if(!$slug){
+            return \response()->json([
+                "message" => "Form not found"
+            ], 404);
+        }
+
+        $form = Form::where('slug', $slug)->with('questions')->first();
+
+        if(!$form){
+            return \response()->json([
+                "message" => "Form not found"
+            ], 404);
+        }
+        
+        if($form->creator_id !== $user->id){
+            return \response()->json([
+              "message" => "Forbidden access"  
+        ], 403);
+        }
 
         $request['form_id'] = $form->id;
-        $request['choices'] = \implode(',', $request->choices);
+
+        if($request->choices){
+            $request['choices'] = \implode(',', $request->choices);
+        }
 
         $question = Question::create($request->all());
 
@@ -99,8 +120,42 @@ class QuestionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Question $question)
+    public function destroy(Request $request, $slug, $id)
     {
-        //
+        $user = auth()->user();
+
+        if(!$slug){
+            return \response()->json([
+                "message" => "Form not found"
+            ], 404);
+        }
+
+        $form = Form::where('slug', $slug)->with('questions')->first();
+
+        if(!$form){
+            return \response()->json([
+                "message" => "Form not found"
+            ], 404);
+        }
+        
+        if($form->creator_id !== $user->id){
+            return \response()->json([
+              "message" => "Forbidden access"  
+        ], 403);
+        }
+
+        $question = Question::where('id', $id)->where('form_id', $form->id)->first();
+
+        if(!$question){
+            return \response()->json([
+                "message" => "Question not found"
+            ], 404);
+        }
+
+        $question->delete();
+    return response()->json([
+            "message" => "Remove question success"
+    ]);
+
     }
 }

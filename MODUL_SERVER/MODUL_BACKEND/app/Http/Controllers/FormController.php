@@ -109,7 +109,7 @@ class FormController extends Controller
             ], 403);
         }
 
-        if(!$form || $form == 0){
+        if(!$form || $form->count() == 0){
             return \response()->json([
                 "message" => "Form not found"
             ], 404);

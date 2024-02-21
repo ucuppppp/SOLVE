@@ -9,4 +9,12 @@ class Answer extends Model
 {
     use HasFactory;
     public $timestamps = false;
+
+    protected $guarded = ['id'];
+
+    public function question()
+    {
+        return $this->belongsTo(Question::class);
+    }
+
 }

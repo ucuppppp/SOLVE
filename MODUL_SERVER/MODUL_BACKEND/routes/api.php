@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\ResponseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -39,11 +40,11 @@ Route::prefix('/v1')->group(function () {
 
             // QUESTIONS FORMS
             Route::post('{slug}/questions', [QuestionController::class, 'store']);
-            Route::post('{slug}/questions/{id}', [QuestionController::class, 'destroy']);
+            Route::delete('{slug}/questions/{id}', [QuestionController::class, 'destroy']);
 
             // RESPONSES FORMS
-            Route::post('{slug}/responses', [FormController::class, 'store']);
-            Route::get('{slug}/responses', [FormController::class, 'index']);
+            Route::post('{slug}/responses', [ResponseController::class, 'store']);
+            Route::get('{slug}/responses', [ResponseController::class, 'index']);
 
         });
 

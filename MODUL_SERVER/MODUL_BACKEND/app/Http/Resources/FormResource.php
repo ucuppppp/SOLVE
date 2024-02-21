@@ -18,6 +18,7 @@ class FormResource extends JsonResource
 
         $allowed_domains = AllowedDomain::where('form_id', $this->id)->pluck('domain');
 
+
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -26,7 +27,7 @@ class FormResource extends JsonResource
             'limit_one_response' => $this->limit_one_response,
             'creator_id' => $this->creator_id,
             'allowed_domains' => $allowed_domains,
-            'questions'=> $this->questions
+            'questions'=> !sizeof($this->questions) == 0 ? $this->questions : null,
         ];
     }
 }
