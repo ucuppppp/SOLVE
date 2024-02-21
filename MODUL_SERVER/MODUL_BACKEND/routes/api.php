@@ -26,7 +26,8 @@ Route::prefix('/v1')->group(function () {
     // LOGIN
     Route::post('/auth/login', [AuthController::class, 'login']);
 
-    Route::middleware('auth:sanctum')->group(function () {
+
+    Route::middleware(['auth:sanctum'])->group(function () {
         // LOGOUT
         Route::post('/auth/logout', [AuthController::class, 'logout']);
 
@@ -34,7 +35,7 @@ Route::prefix('/v1')->group(function () {
             // FORMS
             Route::get('/', [FormController::class, 'index']);
             Route::post('/', [FormController::class, 'store']);
-            Route::post('/{slug}', [FormController::class, 'show']);
+            Route::get('/{slug}', [FormController::class, 'show']);
 
             // QUESTIONS FORMS
             Route::post('{slug}/questions', [QuestionController::class, 'store']);

@@ -19,7 +19,7 @@ class QuestionFactory extends Factory
         return [
             'form_id' => \App\Models\Form::factory(),
             'name' => $this->faker->sentence,
-            'choice_type' => $this->faker->randomElement(['short_answer', 'paragraph', 'date', 'time', 'multiple_choice', 'dropdown', 'checkboxes']),
+            'choice_type' => $this->faker->randomElement(['short answer', 'paragraph', 'date', 'time', 'multiple choice', 'dropdown', 'checkboxes']),
             'choices' => $this->faker->text,
             'is_required' => $this->faker->boolean,
         ];
