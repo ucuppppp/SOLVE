@@ -33,10 +33,10 @@ class ResponseController extends Controller
                 "message" => "Form not found"
             ], 404);
         }
-        
+
         if($form->creator_id !== $user->id){
             return \response()->json([
-              "message" => "Forbidden access"  
+              "message" => "Forbidden access"
         ], 403);
         }
 
@@ -62,7 +62,7 @@ class ResponseController extends Controller
      */
     public function store(Request $request, $slug)
     {
-       
+
         $user = auth()->user();
 
         if(!$slug){
@@ -80,8 +80,6 @@ class ResponseController extends Controller
         }
 
     $questionsRequired = Question::where('form_id', $form->id)->pluck('is_required')->toArray();
-
-    $questionIDs = Question::where('form_id', $form->id)->pluck('id')->toArray();
 
     $allowedDomain = AllowedDomain::where('form_id', $form->id)->pluck('domain')->toArray();
 
@@ -132,7 +130,7 @@ class ResponseController extends Controller
         'form_id' => $form->id,
         'date' => now()->format('Y-m-d H:i:s')
     ]);
-    
+
     foreach ($answers as $answer) {
         Answer::create([
             'response_id' => $responses->id,
