@@ -20,8 +20,6 @@ class ResponseResource extends JsonResource
     {
         $user = User::where('id', $this->user_id)->first()->toArray();
         $answers = Answer::where('response_id', $this->id)->with('question')->get();
-        $form = Form::where('id', $this->form_id)->first();
-        $questions = $form->questions;
 
         foreach ($answers as $answer) {
             $data[$answer['question']['name']] = $answer['value'];
