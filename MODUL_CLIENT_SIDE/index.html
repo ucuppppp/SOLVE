@@ -3,56 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kode+Mono:wght@400..700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/feather-icons"></script>
     <title>Hexaria</title>
     <style>
         body {
             margin: 0;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             height: 100vh;
             background-color: black;
+            color: white;
+            font-family: Arial, sans-serif; /* Ganti font sesuai keinginan */
+        }
+
+        h1{
+            font-family: 'Kode Mono', monospace;
+            color: white;
+            display: inline;
+        }
+
+        .logo{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 5px;
+            /* margin-top: 20px;
+            margin-bottom: 20px; */
+        }
+
+        .hexagon {
+            cursor: pointer;
+            transition: fill 0.3s ease, opacity 0.3s ease; /* Add transition for a smooth color change */
+        }
+
+        .hexagon.player1:hover {
+            fill: rgba(68, 0, 255, 0.456);
+        }
+        .hexagon.player2:hover {
+            fill: rgba(255, 0, 0, 0.456);
+        }
+
+        .hexagon text {
+            pointer-events: none;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        #player-indicators {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 50px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .player-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .player-color-indicator {
+            width: 10px;
+            height: 10px;
+            margin-bottom: 5px;
+        }
+
+        .player-score {
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
+    <div class="logo">
+        <i class="logo" data-feather="hexagon"> </i> <h1>Hexaria</h1>
+    </div>
+
     <svg width="600" height="400" viewBox="-115 -17 1000 600" xmlns="http://www.w3.org/2000/svg" id="svg-container" style="border: solid 0.5px white;">
-
+        
     </svg>
-<script>
-  const svg = document.getElementById('svg-container');
-  const sideLength = 50; // Panjang sisi dari hexagon
-  const hexHeight = 50; // Tinggi dari hexagon (sisi * akar dari 3)
-  const hexOffset = 10; 
+    <div id="player-indicators">
+        <div class="player-indicator">
+            <div class="player-color-indicator" id="player1-indicator"></div>
+            <span>Player 1</span>
+            <span class="player-score" id="player1-score">0</span>
+        </div>
+        <div class="player-indicator">
+            <div class="player-color-indicator" id="player2-indicator"></div>
+            <span>Player 2</span>
+            <span class="player-score" id="player2-score">0</span>
+        </div>
+    </div>
+    <script>
+        feather.replace();
+        const svg = document.getElementById('svg-container');
+        const sideLength = 50;
+        const hexHeight = 50;
+        const hexOffset = 10;
 
-  const numRows = 8;
-  const numCols = 10;
+        const numRows = 8;
+        const numCols = 10;
 
-  for(let i = 0; i < numRows; i++){
-    for(let j = 0; j < numCols; j++){
-      const x = j * (sideLength * 1.517) + (i % 2) * sideLength * 0.755 + hexOffset; // Hitung posisi X
-      const y = i * (hexHeight + (hexOffset+3) * 2) + hexOffset; // Hitung posisi Y
+        let currentPlayer = 1; // 1 for player 1, 2 for player 2
+        let player1Score = 0;
+        let player2Score = 0;
 
-      const points = [
-        { x: x, y: y - sideLength },
-        { x: x + (sideLength + 25) / 2, y: y - hexHeight / 2 },
-        { x: x + (sideLength + 25) / 2, y: y + hexHeight / 2 },
-        { x: x, y: y + sideLength },
-        { x: x - (sideLength + 25) / 2, y: y + hexHeight / 2 },
-        { x: x - (sideLength + 25) / 2, y: y - hexHeight / 2 }
-      ];
+        // Inisialisasi array untuk menyimpan nomor acak
+        const randomNumbers = Array.from({ length: numRows * numCols }, () => Math.floor(Math.random() * 20) + 1);
 
-      const pointsString = points.map(point => `${point.x},${point.y}`).join(' ');
+        let currentNumberIndex = 0; // Index nomor saat ini
 
-      const hexagon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-      hexagon.setAttribute('points', pointsString);
-    //   hexagon.setAttribute('fill', '#6C5B7B');
-      hexagon.setAttribute('stroke', 'white');
-      hexagon.setAttribute('stroke-width', '2');
+        const player1ScoreElement = document.getElementById('player1-score');
+        const player2ScoreElement = document.getElementById('player2-score');
+        const player1Indicator = document.getElementById('player1-indicator');
+        const player2Indicator = document.getElementById('player2-indicator');
 
-      svg.appendChild(hexagon);
-    }
-  }
-</script>
+        for (let i = 0; i < numRows; i++) {
+            for (let j = 0; j < numCols; j++) {
+                const x = j * (sideLength * 1.517) + (i % 2) * sideLength * 0.755 + hexOffset;
+                const y = i * (hexHeight + (hexOffset + 3) * 2) + hexOffset;
+
+                const points = [
+                    { x: x, y: y - sideLength },
+                    { x: x + (sideLength + 25) / 2, y: y - hexHeight / 2 },
+                    { x: x + (sideLength + 25) / 2, y: y + hexHeight / 2 },
+                    { x: x, y: y + sideLength },
+                    { x: x - (sideLength + 25) / 2, y: y + hexHeight / 2 },
+                    { x: x - (sideLength + 25) / 2, y: y - hexHeight / 2 }
+                ];
+
+                const pointsString = points.map(point => `${point.x},${point.y}`).join(' ');
+
+                const hexagon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                hexagon.classList.add('hexagon');
+                hexagon.setAttribute('points', pointsString);
+                hexagon.setAttribute('stroke', 'white');
+                hexagon.setAttribute('stroke-width', '2');
+
+                svg.appendChild(hexagon);
+
+                // Add text element for displaying the random number
+                const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                textElement.setAttribute('x', x);
+                textElement.setAttribute('y', y);
+                textElement.setAttribute('fill', 'white');
+                textElement.setAttribute('font-size', '24');
+                textElement.setAttribute('font-weight', 'bold');
+                textElement.setAttribute('text-anchor', 'middle');
+                textElement.setAttribute('alignment-baseline', 'middle');
+                svg.appendChild(textElement);
+
+                hexagon.addEventListener('click', function () {
+                    if (!hexagon.classList.contains('player1') && !hexagon.classList.contains('player2')) {
+                        const randomNum = randomNumbers[currentNumberIndex];
+                        textElement.textContent = randomNum;
+
+                        if (currentPlayer === 1) {
+                            hexagon.setAttribute('fill', '#0000ff'); // Player 1 color
+                            hexagon.classList.add('player1');
+                            player1Score += randomNum; // Menambahkan nilai ke skor Player 1
+                            player1ScoreElement.textContent = player1Score; // Menampilkan skor Player 1
+                        } else {
+                            hexagon.setAttribute('fill', '#ff0000'); // Player 2 color
+                            hexagon.classList.add('player2');
+                            player2Score += randomNum; // Menambahkan nilai ke skor Player 2
+                            player2ScoreElement.textContent = player2Score; // Menampilkan skor Player 2
+                        }
+                        currentPlayer = 3 - currentPlayer; // Switch player
+                        currentNumberIndex++; // Pindah ke nomor berikutnya
+                        textElement.setAttribute('opacity', '1'); // Set opacity untuk membuat angka muncul secara jelas
+                        // Menghapus event listener setelah diklik
+                        hexagon.removeEventListener('mouseover', mouseOverHandler);
+                        hexagon.removeEventListener('mouseout', mouseOutHandler);
+
+                        console.log('Random Number:', randomNum, 'Player:', currentPlayer);
+                    }
+                });
+
+                const mouseOverHandler = function () {
+                    if (!hexagon.classList.contains('player1') && !hexagon.classList.contains('player2')) {
+                        const nextColor = currentPlayer === 1 ? 'rgba(68, 0, 255, 0.456)' : 'rgba(255, 0, 0, 0.456)';
+                        hexagon.setAttribute('fill', nextColor); // Ganti warna berikutnya sesuai giliran pemain
+
+                        // Tampilkan nomor pada giliran selanjutnya secara samar
+                        textElement.textContent = randomNumbers[currentNumberIndex];
+                        textElement.setAttribute('opacity', '0.5'); // Set opacity untuk membuat angka muncul secara samar
+                    }
+                };
+
+                const mouseOutHandler = function () {
+                    if (!hexagon.classList.contains('player1') && !hexagon.classList.contains('player2')) {
+                        hexagon.setAttribute('fill', 'transparent'); // Set kembali ke transparan saat mouseout
+
+                        // Set opacity kembali ke nilai awal
+                        textElement.setAttribute('opacity', '1');
+                        textElement.textContent = ''; // Hapus teks saat mouseout
+                    }
+                };
+
+                hexagon.addEventListener('mouseover', mouseOverHandler);
+                hexagon.addEventListener('mouseout', mouseOutHandler);
+            }
+        }
+
+        // Inisialisasi warna indikator pemain
+        player1Indicator.style.backgroundColor = 'rgba(68, 0, 255, 0.7)';
+        player2Indicator.style.backgroundColor = 'rgba(255, 0, 0, 0.7)';
+
+    </script>
 </body>
 </html>
